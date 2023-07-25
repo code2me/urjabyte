@@ -11,6 +11,7 @@ const Todo = () => {
     completed: false,
   });
   const [loading, setLoading] = useState(true);
+  const [editingTodoId, setEditingTodoId] = useState(null);
 
   useEffect(() => {
     fetchTodos();
@@ -33,6 +34,11 @@ const Todo = () => {
       setLoading(true);
       await axios.post(VITE_BACKEND_URL, newTodo);
       fetchTodos();
+      setNewTodo({
+        title: "",
+        description: "",
+        completed: false,
+      });
     } catch (error) {
       console.error("Error adding todo:", error);
       setLoading(false);
@@ -59,6 +65,26 @@ const Todo = () => {
       console.error("Error deleting todo:", error);
       setLoading(false);
     }
+  };
+
+  const handleStartEditing = (todoId) => {
+    setEditingTodoId(todoId);
+  };
+
+  const handleSaveEdit = async (editedTodo) => {
+    try {
+      setLoading(true);
+      await axios.put(`${VITE_BACKEND_URL}`, editedTodo);
+      setEditingTodoId(null);
+      fetchTodos();
+    } catch (error) {
+      console.error("Error saving todo edit:", error);
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTodoId(null);
   };
 
   return (
@@ -91,23 +117,71 @@ const Todo = () => {
         <ul className="todos">
           {todos.map((todo) => (
             <li key={todo.todoId} className="todoItem">
-              <div>
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() =>
-                    handleUpdateTodo(todo.todoId, !todo.completed)
-                  }
-                />
-                <span className="todoTitle">{todo.title}</span>
-                <button
-                  onClick={() => handleDeleteTodo(todo.todoId)}
-                  className="deleteButton"
-                >
-                  Delete
-                </button>
-              </div>
-              {todo.description ? (
+              {editingTodoId === todo.todoId ? (
+                <div className="todoEdit">
+                  <input
+                    type="text"
+                    value={todo.title}
+                    onChange={(e) =>
+                      setTodos((prevTodos) =>
+                        prevTodos.map((t) =>
+                          t.todoId === todo.todoId
+                            ? { ...t, title: e.target.value }
+                            : t
+                        )
+                      )
+                    }
+                  />
+                  <textarea
+                    value={todo.description}
+                    onChange={(e) =>
+                      setTodos((prevTodos) =>
+                        prevTodos.map((t) =>
+                          t.todoId === todo.todoId
+                            ? { ...t, description: e.target.value }
+                            : t
+                        )
+                      )
+                    }
+                  />
+                  <button
+                    className="saveButton"
+                    onClick={() => handleSaveEdit(todo)}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="cancelButton"
+                    onClick={() => handleCancelEdit()}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <div className="todoView">
+                  <input
+                    type="checkbox"
+                    checked={todo.completed}
+                    onChange={() =>
+                      handleUpdateTodo(todo.todoId, !todo.completed)
+                    }
+                  />
+                  <span className="todoTitle">{todo.title}</span>
+                  <button
+                    onClick={() => handleDeleteTodo(todo.todoId)}
+                    className="deleteButton"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    className="editButton"
+                    onClick={() => handleStartEditing(todo.todoId)}
+                  >
+                    Edit
+                  </button>
+                </div>
+              )}
+              {editingTodoId ? null : todo.description ? (
                 <p className="todoDescription">{todo.description}</p>
               ) : (
                 <p className="todoDescription">No description available.</p>

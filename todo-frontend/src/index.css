@@ -76,7 +76,12 @@
 
 .todoItem div {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
+}
+
+.todoItem div button {
+  padding: 5px;
+  margin: 5px;
 }
 
 .todoTitle {
@@ -111,4 +116,38 @@
   text-align: center;
   font-style: italic;
   color: #aaa;
+}
+
+.todoEdit {
+  display: flex !important;
+  flex-direction: column !important;
+  margin-bottom: 10px;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.todoEdit input[type="text"],
+.todoEdit textarea {
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.saveButton,
+.cancelButton {
+  padding: 6px 10px;
+  margin-right: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.saveButton:hover,
+.cancelButton:hover {
+  background-color: #0056b3;
 }
